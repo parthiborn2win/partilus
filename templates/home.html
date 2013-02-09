@@ -1,0 +1,245 @@
+<html>
+	<head>
+		<title>Partilus - HTML File Explorer</title>
+		<script type="text/javascript" src="{{MEDIA_URL}}js/jquery.js"></script>
+		<script type="text/javascript" src="{{MEDIA_URL}}js/bootstrap.js"></script>
+		<!-- <script src="{{MEDIA_URL}}js/datatable/scripts/jquery.dataTables.js" type="text/javascript"></script> -->
+		<script src="{{MEDIA_URL}}js/jquery.watable.js" type="text/javascript"></script>
+		<link rel="stylesheet" href="{{MEDIA_URL}}css/bootstrap.css" />
+		<link rel="stylesheet" href="{{MEDIA_URL}}css/bootstrap.custom.css" />
+		<link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/watable.css">
+		<style>
+			.filename,td {
+				white-space: nowrap;
+				max-width: 150px !important;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
+			.tooltip-inner {
+				max-width: 800px !important;
+				float: left !important;
+			}
+			.tooltip {
+				width: 940px !important;
+			}
+		</style>
+		<script>
+			if (typeof String.prototype.startsWith != 'function') {
+			  // see below for better implementation!
+			  String.prototype.startsWith = function (str){
+			    return this.indexOf(str) == 0;
+			  };
+			}
+			function getData(hiddenfiles) {
+				var cols = {
+					name : {
+						index : 1,
+						type : "string", // number, bool, date
+						friendly : "Name",
+						sortOrder : "asc",
+						placeHolder: "Name"
+					},
+					type : {
+						index : 2,
+						type : "string",
+						friendly : "Type"
+					},
+					size : {
+						index : 3,
+						type : "string",
+						friendly : "Size"
+					},
+					permission : {
+						index : 4,
+						type : "string",
+						friendly : "Permission"
+					},
+					createdOn : {
+						index : 5,
+						type : "string",
+						friendly : "Created On",
+					},
+					updatedOn : {
+						index : 6,
+						type : "string",
+						friendly : "Last Modified On",
+					}
+				};
+				var rows = [];
+				var i = 1;
+
+				{% for directory in directories %}
+
+				var doc = {
+					name : "<a href='?path={{path}}{{directory.name}}'>{{directory.name}}</a>",
+					type : "{{directory.type}}",
+					size : "{{directory.size}}",
+					permission : "{{directory.permission}}",
+					createdOn : "{{directory.created_on}}",
+					updatedOn : "{{directory.last_modified_on}}",
+				};
+				if(hiddenfiles == 'show'){
+					rows.push(doc);
+				}else{
+					if(!"{{directory.name}}".startsWith(".")){
+						rows.push(doc);
+					}
+				}
+				i++;
+				{% endfor %}
+
+				{% for file in files %}
+
+				var doc = {
+					name : "{{file.filename}}",
+					type : "{{file.type}}",
+					size : "{{file.size}}",
+					permission : "{{file.permission}}",
+					createdOn : "{{file.created_on}}",
+					updatedOn : "{{file.last_modified_on}}",
+				};
+				if(hiddenfiles == 'show'){
+					rows.push(doc);
+				}else{
+					if(!doc.name.startsWith(".")){
+						rows.push(doc);
+					}
+				}
+				i++;
+				{% endfor %}
+
+				//Create the returning object. Besides cols and rows, you can also pass any other object you would need later on.
+				var data = {
+					cols : cols,
+					rows : rows,
+					otherStuff : {
+						thatImight : 1,
+						wantLater : true
+					}
+				};
+
+				return data;
+			}
+
+			function showtooltip(){
+				$(".watable tr td:first-child").each(function() {
+					try 
+					{
+						html = "<div title='" + $(this).html().split("(")[1].split(")")[0] + "'>" + $(this).html().split(" ")[0] + "</div>";
+
+						$(this).html("<div title='" + $(this).html().split("(")[1].split(")")[0] + "'>" + $(this).html().split(" ")[0] + "</div>");
+						// $(this).attr("title",$(this).html().split("(")[1].split(")")[0]);
+						// $(this).html($(this).html().split(" ")[0]);
+						$(this).find('div').addClass("filename").tooltip({
+							placement : 'right',
+							html : true
+						});
+						$(this).css("cursor", "pointer");
+					} catch(err) {
+					}
+				});
+			}
+			$(document).ready(function() {
+				var waTable = $('#allfiles').WATable({
+					pageSize : 15,
+					preFill : true,
+					filter : true,
+					columnPicker : true,
+            		tableCreated: function(data) {
+            			{% if search %}
+						showtooltip();
+						{% endif %}
+            		},/*actions:{
+            			custom: [             //Add any other elements here. Here is a refresh and export example.
+		                  $('<a href="#" class="refresh"><i class="icon-refresh"></i>&nbsp;Refresh</a>'),
+		                  $('<a href="#" class="export_all"><i class="icon-share"></i>&nbsp;Export all rows</a>'),
+		                  $('<a href="#" class="export_checked"><i class="icon-share"></i>&nbsp;Export checked rows</a>'),
+		                  $('<a href="#" class="export_filtered"><i class="icon-share"></i>&nbsp;Export filtered rows</a>')
+		                ]
+            		},*/
+            		hidePagerOnEmpty: true
+				}).data('WATable');
+				
+
+				var data = getData('hide');
+				waTable.setData(data);
+				{% if search %}
+				showtooltip();
+				{% endif %}
+				
+				$("#searchform").submit(function(){
+					$(".watable").css('opacity','0.60');
+					$("#loadingimg").show();
+				});
+				$("#showhidden").change(function(){
+					ischecked = $(this).is(':checked');
+					if(ischecked){
+						var data = getData('show');
+						waTable.setData(data);
+					}else{
+						var data = getData('hide');
+						waTable.setData(data);
+					}
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div style="width:100%;">
+			<div id="header">
+				<div style="width:940px;margin:0 auto;padding-top:15px;height:50px;">
+					<h3>
+						<a href="/">Partilus</a>
+					</h3>
+					<span style="color:#999;position:absolute;">
+						<h6 style="text-transform: none;">stay away from the terminals</h6>
+					</span>
+
+				</div>
+			</div>
+			<hr/>
+			<div class="clearfix"></div>
+			<div style="width:940px;margin:0 auto;padding-bottom: 100px;">
+				<div style="float:left;width:620px;">
+					<h4 style="color:#999;">
+					{% if search %}
+						About {{files|length}} result{{files|length|pluralize}}
+					{% else %}
+						<a href="/"><span style="font-weight: normal;color:#999;padding-right:1px;">(slash)</span>/</a> 
+						{% for apath in pathlist %}
+							{% if forloop.last %}
+								{{apath.name}} /
+							{% else %}
+								<a href="?path={{apath.url}}">
+									{{apath.name}}</a> / 
+							{% endif %}
+						{% endfor %}
+					{% endif %}
+					</h4>
+				</div>
+				<div style="float:right;">
+					<form class="form-search" action="{% url searchfile %}" method="post" id="searchform">
+						<div class="input-append">
+							<input type="text" class="span2 search-query" name="searchtxt" style="width:200px;height: 27px;margin-right: -3px;margin-top: 2px;" value="{{searchtxt}}">
+							<button type="submit" class="btn">
+								Search
+							</button>
+						</div>
+					</form>
+				</div>
+				<div class="clearfix"></div>
+				
+				<div class="well" style="padding:6px !important;border-top: 1px solid #DDD;border-bottom: 1px solid #DDD;">
+					<label class="checkbox inline" style="float: right;padding-right: 10px;">
+	                	<input type="checkbox" id="showhidden" value="1" name="showhidden"> Hidden Files 
+	              	</label>
+				</div>
+				
+				<div id="loadingimg" style="opacity:0.70;position:absolute;padding-top:30px;left:450px;display:none;z-index:10000">
+					<img src="{{MEDIA_URL}}img/loading_bar.gif" style="width:80%;" />
+				</div>
+				<div id="allfiles"></div>
+			</div>
+		</div>
+	</body>
+</html>
