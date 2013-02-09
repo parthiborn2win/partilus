@@ -21,6 +21,8 @@
 			}
 			.tooltip {
 				width: 940px !important;
+			}a{
+				color:#E96242;
 			}
 		</style>
 		<script>
@@ -186,20 +188,19 @@
 	</head>
 	<body>
 		<div style="width:100%;">
-			<div id="header">
+			<div id="header" style="background:url('{{MEDIA_URL}}img/orange_bg.jpg')">
 				<div style="width:940px;margin:0 auto;padding-top:15px;height:50px;">
 					<h3>
-						<a href="/">Partilus</a>
+						<a href="/" style="color:#fff;">Partilus</a>
 					</h3>
-					<span style="color:#999;position:absolute;">
-						<h6 style="text-transform: none;">stay away from the terminals</h6>
+					<span style="position:absolute;">
+						<h6 style="color:#fff !important;text-transform: none;">stay away from the terminals</h6>
 					</span>
 
 				</div>
 			</div>
-			<hr/>
 			<div class="clearfix"></div>
-			<div style="width:940px;margin:0 auto;padding-bottom: 100px;">
+			<div style="width:940px;margin:0 auto;padding-bottom: 100px;margin-top:20px;">
 				<div style="float:left;width:620px;">
 					<h4 style="color:#999;">
 					{% if search %}
