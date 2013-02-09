@@ -3,7 +3,12 @@ partilus
 
 stay away from the terminals
 
-If you dont have GUI access to a computer (or server) with ubuntu or django installed operating system, then you can easily list files/folders by using partilus.
+Partilus (Django File Explorer) will help you when 
+* No GUI
+* No FTP/similar Access
+* No ssh Access
+by listing you files/folders.
+You can search a file easily through the file system.
 
-You don't need ftp or ssh access to use this.
+More Features coming soon.
 
