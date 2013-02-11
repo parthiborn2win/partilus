@@ -10,7 +10,10 @@ Partilus (Django File Explorer) will help you when
 
 by listing you files/folders.
 
-You can search a file easily through the file system.
+Features:
+* Search a file easily throughout the file system.
+* Add Folder with permission on given location/current path.
+* Add File with permission on given location/current path.
 
 More Features coming soon.
 
