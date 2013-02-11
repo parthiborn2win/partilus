@@ -30,6 +30,18 @@ def sizeof_fmt(num):
             return "%3.1f %s" % (num, x)
         num /= 1024.0
 
+def mode_matches(mode, file):
+    """Return True if 'file' matches 'mode'.
+
+    'mode' should be an integer representing an octal mode (eg
+    int("755", 8) -> 493).
+    """
+    # Extract the permissions bits from the file's (or
+    # directory's) stat info.
+    filemode = stat.S_IMODE(os.stat(file).st_mode)
+
+    return filemode == mode
+
 def _searchfile(lookfor):
     # searchfile(files[0]['filename'])
     fileslist = []
@@ -125,6 +137,27 @@ def searchfile(request):
                                    })
     return render_to_response('home.html',locals(),context_instance = RequestContext(request))
     
+def addfolder(request,fmode="folder"):
+    # POST method only
+    pDict = request.POST.copy()
+    
+    location = pDict['location_%s' %(fmode)]
+    newfolder_name = pDict['newname_%s' %(fmode)]
+    permission = int("%s%s%s" %(pDict['permission1_%s' %(fmode)],pDict['permission2_%s' %(fmode)],pDict['permission3_%s' %(fmode)]),8)
+    
+    location_path = "%s/%s" %(location,newfolder_name)
+    if not os.path.exists(location_path):
+        if fmode == "file":
+            print location_path
+            open(location_path, 'w').close()
+        else: 
+            os.mkdir(location_path)
+        os.chmod(location_path,permission)
+    else:
+        print "Already Exists"
+        
+    return HttpResponseRedirect("%s?path=%s" %(reverse('home'),location))    
+
 def _cmd_git(request,cmd,extra_arg=None):
     '''
     git = sh.git.bake(_cwd='/home/me/repodir')

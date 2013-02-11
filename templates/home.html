@@ -190,6 +190,15 @@
 				$(".bc_links").tooltip({
 					placement:"right"
 				});
+				$(".setcurrent_chk").click(function(){
+					rel = $(this).attr('rel');
+					ischecked = $(this).is(':checked');
+					if(ischecked){
+						$("input[name=location_"+rel+"]").val("{{path}}");
+					}else{
+						$("input[name=location_"+rel+"]").val("");
+					}
+				});
 			});
 		</script>
 	</head>
@@ -238,9 +247,9 @@
 				<div class="clearfix"></div>
 				
 				<div class="well" style="padding:6px !important;border-top: 1px solid #DDD;border-bottom: 1px solid #DDD;">
-					<a href="#newfolder_modal" data-toggle="modal" id="newfolder_btn" title="New Folder" class="btn bc_links" href="#"><img style="height:20px;width:20px;" src="{{MEDIA_URL}}img/folder_new.png" /></a>
+					<a href="#newfolder_modal" data-toggle="modal" id="newfolder_link" title="New Folder" class="btn bc_links" href="#"><img style="height:20px;width:20px;" src="{{MEDIA_URL}}img/folder_new.png" /></a>
 					
-					<a id="newfile_btn" title="New Document" class="btn bc_links" href="#"><img style="padding:2px;width:15px;height:15px;" src="{{MEDIA_URL}}img/file_new.png" /></a>
+					<a href="#newfile_modal" data-toggle="modal" id="newfile_btn" title="New Document" class="btn bc_links" href="#"><img style="padding:2px;width:15px;height:15px;" src="{{MEDIA_URL}}img/file_new.png" /></a>
 					
 					<label class="checkbox inline" style="float: right;padding-right: 10px;">
 	                	<input type="checkbox" id="showhidden" value="1" name="showhidden"> Hidden Files 
@@ -251,42 +260,97 @@
 					<img src="{{MEDIA_URL}}img/loading_bar.gif" style="width:80%;" />
 				</div>
 				<div id="allfiles"></div>
-				
-			    <div class="modal hide fade" id="newfolder_modal">
-    				<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-							&times;
-						</button>
-						<h3>Create Directory</h3>
+				<form action="{% url addfolder 'folder' %}" method="post" >
+				    <div class="modal hide fade" id="newfolder_modal">
+	    				<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+								&times;
+							</button>
+							<h3>Create Directory</h3>
+						</div>
+						<div class="modal-body">						
+							<div style="float:left;">
+								<span style="color:#999;">Directory Name</span><br/>
+								<input type="text" name="newname_folder" placeholder1="Directory Name" style="width:200px;height: 27px;" />
+							</div>
+							<div class="clearfix"></div>
+							<div style="margin-left:0px;">
+								<span style="color:#999;">Permission (Eg. 755)</span><br/>
+								<select name="permission1_folder" class="permission">
+									{% for pmode in permission_modes %}
+										<option value="{{pmode}}" {% if pmode == 7 %}selected="selected"{% endif %}>{{pmode}}</option>
+									{% endfor %}
+								</select>
+								<select name="permission2_folder" class="permission">
+									{% for pmode in permission_modes %}
+										<option value="{{pmode}}" {% if pmode == 5 %}selected="selected"{% endif %}>{{pmode}}</option>
+									{% endfor %}
+								</select>
+								<select name="permission3_folder" class="permission">
+									{% for pmode in permission_modes %}
+										<option value="{{pmode}}" {% if pmode == 5 %}selected="selected"{% endif %}>{{pmode}}</option>
+									{% endfor %}
+								</select>
+							</div>
+							<div class="clearfix"></div>
+							<div style="color:#999;"></div>
+							<span style="color:#999;">Location (Eg. /home/root/Documents/ )</span><br/>
+							<input type="text" name="location_folder" placeholder1="Location (Eg. /home/root/Documents/ )" style="width:400px;height: 27px;" />
+							<label class="checkbox inline" style="margin-top:-15px;">
+								<input type="checkbox" class="setcurrent_chk" rel="folder" /> On Current Path
+							</label>
+						</div>
+						<div class="modal-footer">
+							<a href="#" class="btn" data-dismiss="modal">Close</a>
+							<input type="submit" class="btn btn-primary" value="Add Folder" />
+						</div>
 					</div>
-					<div class="modal-body">
-						<p>
-							<div style="color:#999;">Directory Name</div>
-							<input type="text" name="newfolder_name" placeholder1="Directory Name" style="width:200px;height: 27px;" />
-							<br/>
-							<div style="color:#999;">Select Permission (Eg. 755)</div>
-							<select name="" id="" class="permission">
-								{% for pmode in permission_modes %}
-									<option value="{{pmode}}" {% if pmode == 7 %}selected="selected"{% endif %}>{{pmode}}</option>
-								{% endfor %}
-							</select>
-							<select name="" id="" class="permission">
-								{% for pmode in permission_modes %}
-									<option value="{{pmode}}" {% if pmode == 5 %}selected="selected"{% endif %}>{{pmode}}</option>
-								{% endfor %}
-							</select>
-							<select name="" id="" class="permission">
-								{% for pmode in permission_modes %}
-									<option value="{{pmode}}" {% if pmode == 5 %}selected="selected"{% endif %}>{{pmode}}</option>
-								{% endfor %}
-							</select>
-						</p>
+				</form>
+				<form action="{% url addfolder 'file' %}" method="post" >
+				    <div class="modal hide fade" id="newfile_modal">
+	    				<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+								&times;
+							</button>
+							<h3>Create File</h3>
+						</div>
+						<div class="modal-body">						
+							<div style="float:left;">
+								<span style="color:#999;">File Name</span><br/>
+								<input type="text" name="newname_file" placeholder1="File Name" style="width:200px;height: 27px;" />
+							</div>
+							<div class="clearfix"></div>
+							<div style="margin-left:0px;">
+								<span style="color:#999;">Permission (Eg. 755)</span><br/>
+								<select name="permission1_file" class="permission">
+									{% for pmode in permission_modes %}
+										<option value="{{pmode}}" {% if pmode == 7 %}selected="selected"{% endif %}>{{pmode}}</option>
+									{% endfor %}
+								</select>
+								<select name="permission2_file" class="permission">
+									{% for pmode in permission_modes %}
+										<option value="{{pmode}}" {% if pmode == 5 %}selected="selected"{% endif %}>{{pmode}}</option>
+									{% endfor %}
+								</select>
+								<select name="permission3_file" class="permission">
+									{% for pmode in permission_modes %}
+										<option value="{{pmode}}" {% if pmode == 5 %}selected="selected"{% endif %}>{{pmode}}</option>
+									{% endfor %}
+								</select>
+							</div>
+							<div class="clearfix"></div>
+							<span style="color:#999;">Location (Eg. /home/root/Documents/ )</span><br/>
+							<input type="text" name="location_file" placeholder1="Location (Eg. /home/root/Documents/ )" style="width:400px;height: 27px;" />
+							<label class="checkbox inline" style="margin-top:-15px;">
+								<input type="checkbox" class="setcurrent_chk" rel="file" /> On Current Path
+							</label>
+						</div>
+						<div class="modal-footer">
+							<a href="#" class="btn" data-dismiss="modal">Close</a>
+							<input type="submit" class="btn btn-primary" value="Add File" />
+						</div>
 					</div>
-					<div class="modal-footer">
-						<a href="#" class="btn" data-dismiss="modal">Close</a>
-						<a href="#" class="btn btn-primary">Add Folder</a>
-					</div>
-				</div>
+				</form>
 			</div>
 		</div>
 	</body>

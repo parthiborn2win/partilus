@@ -7,8 +7,9 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Examples:
      url(r'^$', 'partilus.common.views.home', name='home'),
+     
+     url(r'^addfolder/(\w+)/$','partilus.common.views.addfolder',name='addfolder'),
      url(r'^searchfile/$', 'partilus.common.views.searchfile', name='searchfile'),
-     url(r'^(\w+)/$', 'partilus.common.views.home', name='home'),
      
      (r'^site_media/(?P<path>.*)$', 'django.views.static.serve',{'document_root': settings.MEDIA_ROOT }),
     
