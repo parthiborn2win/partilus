@@ -103,6 +103,7 @@ def home(request,path='/'):
         pathdict['url']=url
         pathlist.append(pathdict)
     
+    permission_modes = [1,2,3,4,5,6,7]
     
     return render_to_response('home.html',locals(),context_instance = RequestContext(request))
 

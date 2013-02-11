@@ -21,8 +21,12 @@
 			}
 			.tooltip {
 				width: 940px !important;
-			}a{
+			}
+			a{
 				color:#E96242;
+			}
+			.permission{
+				width:40px;
 			}
 		</style>
 		<script>
@@ -183,6 +187,9 @@
 						waTable.setData(data);
 					}
 				});
+				$(".bc_links").tooltip({
+					placement:"right"
+				});
 			});
 		</script>
 	</head>
@@ -231,6 +238,10 @@
 				<div class="clearfix"></div>
 				
 				<div class="well" style="padding:6px !important;border-top: 1px solid #DDD;border-bottom: 1px solid #DDD;">
+					<a href="#newfolder_modal" data-toggle="modal" id="newfolder_btn" title="New Folder" class="btn bc_links" href="#"><img style="height:20px;width:20px;" src="{{MEDIA_URL}}img/folder_new.png" /></a>
+					
+					<a id="newfile_btn" title="New Document" class="btn bc_links" href="#"><img style="padding:2px;width:15px;height:15px;" src="{{MEDIA_URL}}img/file_new.png" /></a>
+					
 					<label class="checkbox inline" style="float: right;padding-right: 10px;">
 	                	<input type="checkbox" id="showhidden" value="1" name="showhidden"> Hidden Files 
 	              	</label>
@@ -240,6 +251,42 @@
 					<img src="{{MEDIA_URL}}img/loading_bar.gif" style="width:80%;" />
 				</div>
 				<div id="allfiles"></div>
+				
+			    <div class="modal hide fade" id="newfolder_modal">
+    				<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+							&times;
+						</button>
+						<h3>Create Directory</h3>
+					</div>
+					<div class="modal-body">
+						<p>
+							<div style="color:#999;">Directory Name</div>
+							<input type="text" name="newfolder_name" placeholder1="Directory Name" style="width:200px;height: 27px;" />
+							<br/>
+							<div style="color:#999;">Select Permission (Eg. 755)</div>
+							<select name="" id="" class="permission">
+								{% for pmode in permission_modes %}
+									<option value="{{pmode}}" {% if pmode == 7 %}selected="selected"{% endif %}>{{pmode}}</option>
+								{% endfor %}
+							</select>
+							<select name="" id="" class="permission">
+								{% for pmode in permission_modes %}
+									<option value="{{pmode}}" {% if pmode == 5 %}selected="selected"{% endif %}>{{pmode}}</option>
+								{% endfor %}
+							</select>
+							<select name="" id="" class="permission">
+								{% for pmode in permission_modes %}
+									<option value="{{pmode}}" {% if pmode == 5 %}selected="selected"{% endif %}>{{pmode}}</option>
+								{% endfor %}
+							</select>
+						</p>
+					</div>
+					<div class="modal-footer">
+						<a href="#" class="btn" data-dismiss="modal">Close</a>
+						<a href="#" class="btn btn-primary">Add Folder</a>
+					</div>
+				</div>
 			</div>
 		</div>
 	</body>
