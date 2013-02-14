@@ -14,6 +14,8 @@ Features:
 * Search a file easily throughout the file system.
 * Add Folder with permission on given location/current path.
 * Add File with permission on given location/current path.
+* Copy & Paste File/Directory.
+* Delete File/Directory.
 
 More Features coming soon.
 
