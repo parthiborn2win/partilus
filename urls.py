@@ -10,6 +10,9 @@ urlpatterns = patterns('',
      
      url(r'^addfolder/(\w+)/$','partilus.common.views.addfolder',name='addfolder'),
      url(r'^searchfile/$', 'partilus.common.views.searchfile', name='searchfile'),
+     url(r'^copy/(\w+)/$', 'partilus.common.views.copy', name='copy'),
+     url(r'^paste/$', 'partilus.common.views.paste', name='paste'),
+     url(r'^delete/$', 'partilus.common.views.delete', name='delete'),
      
      (r'^site_media/(?P<path>.*)$', 'django.views.static.serve',{'document_root': settings.MEDIA_ROOT }),
     

@@ -21,9 +21,25 @@ import os
 import sys
 import stat
 import time
+import shutil, errno
 #import git
 #import sh
+
+def copyanything(src, dst):
+    try:
+        try:
+            shutil.copytree(src, dst)
+        except OSError as exc:
+            if exc.errno == errno.ENOTDIR:
+                shutil.copy(src, dst)
+            else: 
+                print 'some error machi'
+                pass
+    except Exception,e:
+        return e
     
+    return "Pasted Successfully"
+        
 def sizeof_fmt(num):
     for x in ['B','KB','MB','GB','TB']:
         if num < 1024.0:
@@ -117,6 +133,12 @@ def home(request,path='/'):
     
     permission_modes = [1,2,3,4,5,6,7]
     
+    try:
+        paste_msg = request.session["paste_msg"]
+        del request.session["paste_msg"]
+    except:
+        pass
+    
     return render_to_response('home.html',locals(),context_instance = RequestContext(request))
 
 def searchfile(request):
@@ -157,6 +179,47 @@ def addfolder(request,fmode="folder"):
         print "Already Exists"
         
     return HttpResponseRedirect("%s?path=%s" %(reverse('home'),location))    
+
+def copy(request,type):
+    gDict = request.GET.copy()
+    
+    request.session['cp_type'] = type
+    request.session['cp_path'] = gDict['path']
+        
+    print type,gDict['path']
+    
+    return HttpResponse("success")
+
+def paste(request):
+    gDict = request.GET.copy()
+    copy_to_path = gDict['path']
+    response = HttpResponseRedirect("%s?path=%s" %(reverse('home'),copy_to_path))
+
+    type = request.session['cp_type']
+    copy_file = request.session['cp_path']
+    
+    print type,copy_to_path,copy_file
+    request.session["paste_msg"] = copyanything(copy_file, copy_to_path)
+    
+    del request.session['cp_type']
+    del request.session['cp_path']
+    
+    return response
+
+def delete(request):
+    gDict = request.GET.copy()
+    del_path = gDict['name']
+    
+    try:
+        try:
+            shutil.rmtree(del_path)
+        except:
+            os.remove(del_path)
+        return_path = del_path.rstrip(del_path.split('/')[-1:][0])
+    except:
+        return_path = '/'    
+    
+    return HttpResponseRedirect("%s?path=%s" %(reverse('home'),return_path))
 
 def _cmd_git(request,cmd,extra_arg=None):
     '''

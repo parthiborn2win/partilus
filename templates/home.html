@@ -57,6 +57,9 @@
 			#header{
 				opacity:0.9;
 			}
+			.delthis:hover{
+				text-decoration:none;
+			}
 		</style>
 		<script>
 			if (typeof String.prototype.startsWith != 'function') {
@@ -118,7 +121,7 @@
 					permission : "{{directory.permission}}",
 					createdOn : "{{directory.created_on}}",
 					updatedOn : "{{directory.last_modified_on}}",
-					action : "<span class='label label-success copythis' rel='{{path}}{{directory.name}}&&{{directory.type}}'>Copy</span>  <span class='grey'></span> <span class='label label-important'>Delete</span>",
+					action : "<span class='label label-success copythis' rel='{{path}}{{directory.name}}&&{{directory.type}}'>Copy</span>  <span class='grey'></span> <a class='delthis' href='/delete?name={{path}}{{directory.name}}'><span class='label label-important'>Delete</span></a>",
 				};
 				if(hiddenfiles == 'show'){
 					rows.push(doc);
@@ -139,7 +142,7 @@
 					permission : "{{file.permission}}",
 					createdOn : "{{file.created_on}}",
 					updatedOn : "{{file.last_modified_on}}",
-					action : "<span class='label label-success copythis' rel='{{path}}{{file.filename}}&&{{file.type}}'>Copy</span>  <span class='grey'></span> <span class='label label-important'>Delete</span>",
+					action : "<span class='label label-success copythis' rel='{{path}}{{file.filename}}&&{{file.type}}'>Copy</span>  <span class='grey'></span> <a class='delthis' href='/delete?name={{path}}{{file.filename}}'><span class='label label-important'>Delete</span></a>",
 				};
 				if(hiddenfiles == 'show'){
 					rows.push(doc);
@@ -274,22 +277,49 @@
 					}
 				});
 				
-				$("#notifydiv").hide();
+				{% if request.session.cp_type and request.session.cp_path %}
+					title = "<span class='filename' style='max-width:300px !important;'>{{request.session.cp_path}}</span> is in clipboard.";
+					text = "<a href='/paste/?path={{path}}' class='btn btn-info'>Paste it</a> here!";
+					$(".ui-pnotify-title").html(title);
+					$(".ui-pnotify-text").html(text);
+				{% else %}
+					$("#notifydiv").hide();
+				{% endif %}
 				
+				{% if paste_msg %}
+					title = "{{paste_msg}}";
+					text = '';
+					$(".ui-pnotify-title").html(title);
+					$(".ui-pnotify-text").html(text);
+					$("#notifydiv").slideDown();
+				{% endif %}
+								
 				$(".copythis").click(function(){
 					rel = $(this).attr('rel');
 					path = rel.split("&&")[0];
 					type = rel.split("&&")[1];
 					console.log(path+":-"+type);
-					title = "'"+path+"' is copied successfully.";
+					title = "<span class='filename' style='max-width:300px !important;'>"+path+"</span> is copied successfully.";
 					text = "You can Paste it anywhere!";
 					
 					$(".ui-pnotify-title").html(title); // "The "+type+
 					$(".ui-pnotify-text").html(text); // <span class='btn btn-info'>Paste it</span>
-					$("#notifydiv").show();
+					
+					$("#notifydiv").hide();					
+					
+					$.ajax({
+						url:"/copy/"+type+"?path="+path,
+						context: document.body
+					}).done(function(data) {
+						if(data=="success"){
+							$("#notifydiv").slideDown();
+						}
+					});
 					//pinesettings(title,text);
 				});
-				
+				$(".ui-pnotify-closer").click(function(){
+					$("#notifydiv").slideUp();
+				});
 
 			});
 		</script>
@@ -297,13 +327,13 @@
 	<body>
 		<div class="ui-pnotify ui-widget ui-helper-clearfix" id="notifydiv" style="width: 300px; opacity: 1; display: block; right: 15px; top: 85px;">
 			<div class="alert alert-success ui-pnotify-shadow ui-corner-all ui-state-highlight" style="min-height: 16px;">
-				<div class="ui-pnotify-closer" style="cursor: pointer; visibility: hidden;">
-					<span class="ui-icon ui-icon-circle-close"></span>
+				<div class="ui-pnotify-closer" style="cursor: pointer;border:1px solid #ccc;font-size:125%;position: absolute;right: 5px;top: 5px;">
+					<span class="ui-icon ui-icon-circle-close">X</span>
 				</div>
 				<div class="ui-pnotify-icon">
 					<span class="ui-icon ui-icon-info"></span>
 				</div>
-				<h4 class="ui-pnotify-title">Notify1</h4>
+				<h4 class="ui-pnotify-title" style="max-width:260px !important;overflow:hidden;text-overflow: ellipsis;"></h4>
 				<div class="ui-pnotify-text">Notify Msg1.</div>
 			</div>
 		</div> 
